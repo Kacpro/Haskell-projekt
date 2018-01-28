@@ -1,6 +1,10 @@
 module Main where
 
-import Lib
+import Matrix
+import Tree
+
+import Test.QuickCheck
+
 
 main :: IO ()
-main = someFunc
+main = putStrLn "1"

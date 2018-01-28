@@ -1,3 +1,5 @@
+module MatrixTest where 
+
 import Matrix
 import Test.HUnit
 
@@ -9,7 +11,7 @@ m4 = matrix [[1]]
 m5 = matrix [[1,0,0],[0,1,0],[0,0,1]]
 
 
-tests = test [ "rowsTest1" ~: "(rows m0)" ~: (0) ~=? (rows m0),
+matrixtests = test [ "rowsTest1" ~: "(rows m0)" ~: (0) ~=? (rows m0),
 					"rowsTest2" ~: "(rows m1)" ~: (2) ~=? (rows m1),
 					"rowsTest3" ~: "(rows m2)" ~: (3) ~=? (rows m2),
 					"rowsTest4" ~: "(rows m3)" ~: (3) ~=? (rows m3),

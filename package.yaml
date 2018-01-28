@@ -1,6 +1,6 @@
-name:                haskell-projekt
+name:                mtproject
 version:             0.1.0.0
-github:              "githubuser/haskell-projekt"
+github:              "githubuser/mtproject"
 license:             BSD3
 author:              "Author name here"
 maintainer:          "example@example.com"
@@ -17,16 +17,18 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on Github at <https://github.com/githubuser/haskell-projekt#readme>
+description:         Please see the README on Github at <https://github.com/githubuser/mtproject#readme>
 
 dependencies:
 - base >= 4.7 && < 5
+- HUnit
+- QuickCheck
 
 library:
   source-dirs: src
 
 executables:
-  haskell-projekt-exe:
+  mtproject-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -34,10 +36,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - haskell-projekt
+    - mtproject
 
 tests:
-  haskell-projekt-test:
+  mtproject-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -45,4 +47,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - haskell-projekt
+    - mtproject
+    - HUnit
+    - QuickCheck

@@ -1,8 +1,14 @@
+module MatrixQC where
+
 import Matrix
 import Test.QuickCheck
+import Data.Int
+
+
 
 
 -- | checks if the matrix changes after double transposure
+prop_transpose :: (Eq a) => BufMatrix a -> Bool
 prop_transpose m = transpose (transpose m) == m 
 
 -- | checks if transposure changes the determinant
@@ -34,6 +40,3 @@ prop_minor m  = (rows m) == (columns m) ==> m == minorMatrix m 1 1 (rows m)
 
 -- | checks if the rank of the matrix is smaller then the size of it
 prop_rank m  = rank m <= min (rows m) (columns m)
-
-
-

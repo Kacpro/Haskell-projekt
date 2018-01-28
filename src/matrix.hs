@@ -1,4 +1,5 @@
-module Matrix (matrix, rows, columns, getElement, deleteColumn, deleteRow, deleteRowAndColumn, det, transpose, cofactor, mul, mMul, mAdd, inverse, minorMatrix, rank, solve) where
+-- | Provides operations on matrices
+module Matrix where
 
 import Test.QuickCheck.Arbitrary
 import Data.Int
@@ -9,18 +10,18 @@ newtype BufMatrix a = BufMatrix [[a]]
 matrix :: Num a => [[a]] -> BufMatrix a
 matrix [] = BufMatrix [[]]
 matrix m = if (all (\x -> ((length x) /= 0 && (length x) == (length (head m)))) m) then BufMatrix m
-																												   else BufMatrix [[]]
+           else BufMatrix [[]]
 
 instance Eq a => Eq (BufMatrix a) where
-	(==) (BufMatrix m1) (BufMatrix m2) = (m1 == m2)
-	
-	
+    (==) (BufMatrix m1) (BufMatrix m2) = (m1 == m2)
+    
+    
 instance (Arbitrary a, Num a) => Arbitrary (BufMatrix a) where
-	 arbitrary = do
-		 m <- arbitrary
-		 return (matrix m)
+     arbitrary = do
+         m <- arbitrary
+         return (matrix m)
 
-		 
+         
 -- | Returns number of rows of a given matrix
 rows :: BufMatrix a -> Int
 rows (BufMatrix [[]]) = 0
@@ -33,14 +34,14 @@ columns (BufMatrix m) = length (head m)
 
 
 instance Show a => Show (BufMatrix a) where
-	show (BufMatrix m) = "\n" ++ (foldl (++) "" (map (\x -> (( foldr(++) "\n\n" (map (\y -> ((show y) ++ "\t") ) x)))) m))
-	
+    show (BufMatrix m) = "\n" ++ (foldl (++) "" (map (\x -> (( foldr(++) "\n\n" (map (\y -> ((show y) ++ "\t") ) x)))) m))
+    
 
 -- | Returns the value of the element located in the cross section of given row and column 
 getElement :: BufMatrix a -> Int -> Int -> a
 getElement (BufMatrix m) y x =  if (y <= (rows (BufMatrix m)) && x <= (columns (BufMatrix m))) 
-												then (_getElemFromList (_getElemFromList m y) x)
-												else error "Wrong arguments"
+                                                then (_getElemFromList (_getElemFromList m y) x)
+                                                else error "Wrong arguments"
 
 
 -- | (hidden function) Returns element from the list located at given position 
@@ -59,8 +60,8 @@ _delElemFromList (x:xs) n = x :_delElemFromList xs (n-1)
 -- | Deletes given row from the matrix
 deleteRow :: (Num n, Eq n) => (BufMatrix a) -> n -> (BufMatrix a)
 deleteRow (BufMatrix m) n = if (rows (BufMatrix m) == 1 && n == 1)
-										   then BufMatrix [[]]
-										   else BufMatrix (_delElemFromList m n)
+                                           then BufMatrix [[]]
+                                           else BufMatrix (_delElemFromList m n)
 
 
 -- | Deletes given column from the matrix
@@ -68,21 +69,21 @@ deleteColumn :: (Num n, Eq n) => (BufMatrix a) -> n -> (BufMatrix a)
 deleteColumn (BufMatrix m) n = BufMatrix (map (\x -> _delElemFromList x n) m)
 
 
--- | Deletes given row and column from the matrix	
+-- | Deletes given row and column from the matrix   
 deleteRowAndColumn :: (BufMatrix a) -> Int -> Int -> (BufMatrix a)
 deleteRowAndColumn m y x = (deleteColumn (deleteRow m y) x)
 
-	
+    
 -- | Returns the value of the determinant of the matrix
 det :: Num a => BufMatrix a -> a
 det m =  if (rows m) == (columns m)
-			 then if (rows m) == 1
-					 then getElement m 1 1
-					 else sum [ (-1)^(i+1) * (getElement m i 1) * (det (deleteRowAndColumn m i 1)) | i <- [1..(rows m)]] 
-			  else error "The number of rows doesn't match with the number of columns"
+             then if (rows m) == 1
+                     then getElement m 1 1
+                     else sum [ (-1)^(i+1) * (getElement m i 1) * (det (deleteRowAndColumn m i 1)) | i <- [1..(rows m)]] 
+              else error "The number of rows doesn't match with the number of columns"
 
 
--- | Returns a transposed matrix			  
+-- | Returns a transposed matrix              
 transpose :: (BufMatrix a) -> (BufMatrix a)
 transpose (BufMatrix [[]]) = BufMatrix [[]]
 transpose m = BufMatrix ([  [ (getElement m i j) | i<-[1..(rows m)] ] | j<- [1..(columns m)] ])
@@ -91,10 +92,10 @@ transpose m = BufMatrix ([  [ (getElement m i j) | i<-[1..(rows m)] ] | j<- [1..
 -- | Returns matrix of cofactors
 cofactor :: Num a => (BufMatrix a) -> (BufMatrix a)
 cofactor m =  if (rows m /= columns m)
-					then error "The number of rows doesn't match with the number of columns"
-					else if (rows m == 0)
-						   then BufMatrix [[]]
-						   else BufMatrix (   [  [  ((-1)^(i+j))*det(deleteRowAndColumn m j i) | i<- [1..(columns m)] ] | j <- [1..(rows m)] ]  )
+                    then error "The number of rows doesn't match with the number of columns"
+                    else if (rows m == 0)
+                           then BufMatrix [[]]
+                           else BufMatrix (   [  [  ((-1)^(i+j))*det(deleteRowAndColumn m j i) | i<- [1..(columns m)] ] | j <- [1..(rows m)] ]  )
 
 
 -- | Multiplies the scalar and the matrix
@@ -105,53 +106,53 @@ mul (BufMatrix m) n = BufMatrix (map (\x -> map (*n) x) m)
 -- | Returns the inversed matrix
 inverse ::(Num a, Fractional a) => (BufMatrix a) -> (BufMatrix a)
 inverse m = if (columns m == rows m)
-				 then if (columns m) == 1
-						 then BufMatrix [[1/(getElement m 1 1)]]
-						 else mul (transpose (cofactor m)) (1/(det m))
-				 else error "The number of rows doesn't match with the number of columns"
+                 then if (columns m) == 1
+                         then BufMatrix [[1/(getElement m 1 1)]]
+                         else mul (transpose (cofactor m)) (1/(det m))
+                 else error "The number of rows doesn't match with the number of columns"
 
 
 -- | Multiplies two matrices
 mMul :: Num a => (BufMatrix a) -> (BufMatrix a) -> (BufMatrix a)
 mMul m1 m2 = if ( columns m1) == (rows m2)
-					 then if (columns m1 == 0)
-							 then BufMatrix [[]]
-							 else BufMatrix ( [[( sum [ ( (getElement m1 j k)*(getElement m2 k i) ) | k <- [1..(columns m1)] ] ) | i <-[1..(columns m2)] ] | j<- [1..(rows m1)] ] )
-					 else error "Can't perform multiplication"
-					   
+                     then if (columns m1 == 0)
+                             then BufMatrix [[]]
+                             else BufMatrix ( [[( sum [ ( (getElement m1 j k)*(getElement m2 k i) ) | k <- [1..(columns m1)] ] ) | i <-[1..(columns m2)] ] | j<- [1..(rows m1)] ] )
+                     else error "Can't perform multiplication"
+                       
 
--- | Adds two matrices					   
+-- | Adds two matrices                     
 mAdd :: Num a => (BufMatrix a) -> (BufMatrix a) -> (BufMatrix a)
 mAdd (BufMatrix [[]]) (BufMatrix [[]]) = BufMatrix [[]]
 mAdd m1 m2 = if (rows m1 == rows m2 && columns m1 == columns m2)
-					  then BufMatrix ([[((getElement m1 j i)+(getElement m2 j i)) | i<-[1..(columns m1)]] | j<- [1..(rows m1)]])
-					  else error "Can't perform addition"
+                      then BufMatrix ([[((getElement m1 j i)+(getElement m2 j i)) | i<-[1..(columns m1)]] | j<- [1..(rows m1)]])
+                      else error "Can't perform addition"
 
 
 -- | Returns a square sub-matrix with the given size and the upper-left corner located at given position
 minorMatrix :: (BufMatrix a) -> Int -> Int -> Int -> (BufMatrix a)
 minorMatrix m y x d 
-	| y+d-1 < (rows m) = (minorMatrix (deleteRow m (rows m)) y x d)
-	| x+d-1 < (columns m) = (minorMatrix (deleteColumn m (columns m)) y x d)
-	| y > 1 = (minorMatrix (deleteRow m 1) (y-1) x d)
-	| x > 1 = (minorMatrix (deleteColumn m 1) y (x-1) d)
-	| (x == 1 && y==1 && d ==(rows m) && d==(columns m))  = m
-	| y+d-1 > (rows m) || x+d-1 > (columns m) = error "Wrong arguments"
+    | y+d-1 < (rows m) = (minorMatrix (deleteRow m (rows m)) y x d)
+    | x+d-1 < (columns m) = (minorMatrix (deleteColumn m (columns m)) y x d)
+    | y > 1 = (minorMatrix (deleteRow m 1) (y-1) x d)
+    | x > 1 = (minorMatrix (deleteColumn m 1) y (x-1) d)
+    | (x == 1 && y==1 && d ==(rows m) && d==(columns m))  = m
+    | y+d-1 > (rows m) || x+d-1 > (columns m) = error "Wrong arguments"
 
 
 -- | Returns the rank of the matrix
 rank :: (Num a, Eq a)=> (BufMatrix a) -> Int
 rank (BufMatrix [[]]) = 0
 rank m = if (filter (\x -> (det x) /=0 )  [ (minorMatrix m i j k) | k<- [(min (columns m) (rows m)), (min (columns m) (rows m)-1)..1], i<- [1..((rows m)-k+1)], j<- [1..((columns m)-k+1)] ]) /= []
-			 then rows (head (filter (\x -> (det x) /=0 )  [ (minorMatrix m i j k) | k<- [(min (columns m) (rows m)), (min (columns m) (rows m)-1)..1], i<- [1..((rows m)-k+1)], j<- [1..((columns m)-k+1)] ]))
-			 else 0
+             then rows (head (filter (\x -> (det x) /=0 )  [ (minorMatrix m i j k) | k<- [(min (columns m) (rows m)), (min (columns m) (rows m)-1)..1], i<- [1..((rows m)-k+1)], j<- [1..((columns m)-k+1)] ]))
+             else 0
 
 
 -- | Solves the system of equations and returns the result if the system has a unique solution (empty matrix otherwise)
 solve :: (Num a, Fractional a, Eq a) => (BufMatrix a) -> (BufMatrix a) -> (BufMatrix a)
 solve mA mB = if (rows mA)==(columns mA) && (rank mA)==(rows mA) && (columns mB == 1)&& (rows mB == rows mA)
-					  then mMul (inverse mA) mB
-					  else (BufMatrix [[]])
+                      then mMul (inverse mA) mB
+                      else (BufMatrix [[]])
 
 
 
@@ -162,4 +163,5 @@ solve mA mB = if (rows mA)==(columns mA) && (rank mA)==(rows mA) && (columns mB 
 
 
 
-			 
+
+             

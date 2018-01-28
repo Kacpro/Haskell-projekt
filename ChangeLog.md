@@ -1,3 +1,3 @@
-# Changelog for haskell-projekt
+# Changelog for mtproject
 
 ## Unreleased changes
